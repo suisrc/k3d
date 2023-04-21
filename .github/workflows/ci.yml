@@ -11,8 +11,8 @@ env:
   IMAGE_NAME: suisrc/k3d
   IMAGE_VERSION: '1.25.8-k3s1'
   GITHUB_REGISTRY: ghcr.io
-  # DOCKER_REGISTRY: docker.io
-  # QUAY_REGISTRY: quay.io
+  DOCKER_REGISTRY: docker.io
+  QUAY_REGISTRY: quay.io
 
 jobs:
 
