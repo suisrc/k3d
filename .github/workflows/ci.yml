@@ -1,0 +1,66 @@
+name: ci
+
+# https://help.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#github-context
+# https://help.github.com/en/actions/reference/events-that-trigger-workflows
+on:
+
+  push:
+    branches: [ master ]
+
+env:
+  IMAGE_NAME: suisrc/k3d
+  IMAGE_VERSION: '1.25.8-k3s1'
+  GITHUB_REGISTRY: ghcr.io
+  # DOCKER_REGISTRY: docker.io
+  # QUAY_REGISTRY: quay.io
+
+jobs:
+
+  ubuntu:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build image
+        run: |
+          docker build Dockerfile --tag image
+
+      - name: Push github image
+        run: |
+          REGISTRY_URL=$GITHUB_REGISTRY
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login $REGISTRY_URL -u ${{ github.actor }} --password-stdin
+
+          IMAGE_ID=$REGISTRY_URL/$IMAGE_NAME
+          echo IMAGE_ID=$IMAGE_ID
+          VERSION=$IMAGE_VERSION
+          echo VERSION=$VERSION
+
+          docker tag image $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+
+      # - name: Push quay image
+      #   run: |
+      #     REGISTRY_URL=$QUAY_REGISTRY
+      #     echo "${{ secrets.QUAY_TOKEN }}" | docker login $REGISTRY_URL -u ${{ secrets.QUAY_USER }} --password-stdin
+
+      #     IMAGE_ID=$REGISTRY_URL/$IMAGE_NAME
+      #     echo IMAGE_ID=$IMAGE_ID
+      #     VERSION=$IMAGE_VERSION-${{ github.job }}
+      #     echo VERSION=$VERSION
+
+      #     docker tag image $IMAGE_ID:$VERSION
+      #     docker push $IMAGE_ID:$VERSION
+
+      # - name: Push docker image
+      #   run: |
+      #     REGISTRY_URL=$DOCKER_REGISTRY
+      #     echo "${{ secrets.DOCKER_TOKEN }}" | docker login $REGISTRY_URL -u ${{ secrets.DOCKER_USER }} --password-stdin
+
+      #     IMAGE_ID=$REGISTRY_URL/$IMAGE_NAME
+      #     echo IMAGE_ID=$IMAGE_ID
+      #     VERSION=$IMAGE_VERSION-${{ github.job }}
+      #     echo VERSION=$VERSION
+
+      #     docker tag image $IMAGE_ID:$VERSION
+      #     docker push $IMAGE_ID:$VERSION
