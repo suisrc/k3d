@@ -24,7 +24,7 @@ jobs:
 
       - name: Build image
         run: |
-          docker build Dockerfile --tag image
+          docker build . --tag image
 
       - name: Push github image
         run: |
